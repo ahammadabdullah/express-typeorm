@@ -1,4 +1,4 @@
-import { AppDataSource } from "../../config/db";
+import { getDataSource } from "../../config/db";
 import { User } from "../../entities/User";
 import { Todo, TodoStatus } from "../../entities/Todo";
 import { cryptoUtils } from "../../utils/crypto";
@@ -6,8 +6,9 @@ import { logger } from "../../utils/logger";
 
 export const seedDatabase = async () => {
   try {
-    const userRepository = AppDataSource.getRepository(User);
-    const todoRepository = AppDataSource.getRepository(Todo);
+    const dataSource = await getDataSource();
+    const userRepository = dataSource.getRepository(User);
+    const todoRepository = dataSource.getRepository(Todo);
 
     const userCount = await userRepository.count();
     if (userCount > 0) {

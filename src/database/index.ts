@@ -1,16 +1,12 @@
-import { AppDataSource } from "../config/db";
+import { getDataSource } from "../config/db";
 import { seedDatabase } from "./seeders/seed";
 import { logger } from "../utils/logger";
 
 const runSeeder = async () => {
   try {
-    await AppDataSource.initialize();
-    logger.info("Database connection established");
-
+    await getDataSource();
     await seedDatabase();
-
-    await AppDataSource.destroy();
-    logger.info("Database connection closed");
+    logger.info("Database seeding completed successfully!");
     process.exit(0);
   } catch (error) {
     logger.error("Seeding failed", error);

@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import * as jwt from "jsonwebtoken";
 import { env } from "../config/env";
-import { AppDataSource } from "../config/db";
 import { User } from "../entities/User";
 import { logger } from "../utils/logger";
+import { getDataSource } from "../config/db";
 
 export const authGuard = async (
   req: Request,
@@ -16,8 +16,8 @@ export const authGuard = async (
     const token = authHeader?.substring(7);
 
     const decoded = jwt.verify(token!, env.JWT_SECRET) as any;
-
-    const userRepository = AppDataSource.getRepository(User);
+    const dataSource = await getDataSource();
+    const userRepository = dataSource.getRepository(User);
     const user = await userRepository.findOne({
       where: { uuid: decoded.uuid },
     });

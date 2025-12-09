@@ -1,5 +1,7 @@
+import "reflect-metadata";
+
 import express from "express";
-import { AppDataSource } from "./config/db";
+import { getDataSource } from "./config/db";
 import { logger } from "./utils/logger";
 import routes from "./routes";
 import { errorHandler } from "./middleware/errorHandler";
@@ -8,7 +10,7 @@ export const createApp = async () => {
   const app = express();
 
   try {
-    await AppDataSource.initialize();
+    await getDataSource();
     logger.info("Database connected successfully");
   } catch (error) {
     logger.error("Failed to initialize database", error);

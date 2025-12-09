@@ -1,3 +1,5 @@
+import "reflect-metadata";
+
 import "./types/globals";
 import { createApp } from "./app";
 import { env } from "./config/env";

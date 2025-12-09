@@ -1,9 +1,20 @@
-import { AppDataSource } from "../config/db";
+import { DataSource, Repository } from "typeorm";
+import { getDataSource } from "../config/db";
 import { Todo, TodoStatus } from "../entities/Todo";
 
 export class TodoService {
-  private todoRepository = AppDataSource.getRepository(Todo);
-  private dataSource = AppDataSource;
+  private dataSource!: DataSource;
+  private todoRepository!: Repository<Todo>;
+
+  constructor() {
+    this.LoadAsync();
+  }
+
+  private LoadAsync = async () => {
+    this.dataSource = await getDataSource();
+    this.todoRepository = await this.dataSource.getRepository(Todo);
+  };
+
   async createTodo(
     userId: string,
     title: string,
@@ -43,6 +54,7 @@ export class TodoService {
     const todos = await this.todoRepository
       .createQueryBuilder("todo")
       .where("todo.userId = :userId", { userId })
+      .leftJoinAndSelect("todo.user", "users")
       .orderBy("todo.createdAt", "DESC")
       .getMany();
 
@@ -54,6 +66,7 @@ export class TodoService {
       .createQueryBuilder("todo")
       .where("todo.uuid = :uuid", { uuid })
       .andWhere("todo.userId = :userId", { userId })
+      .leftJoinAndSelect("todo.user", "users")
       .getOne();
 
     return todo || null;

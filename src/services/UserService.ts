@@ -1,10 +1,20 @@
-import { AppDataSource } from "../config/db";
+import { DataSource, Repository } from "typeorm";
 import { User } from "../entities/User";
 import { cryptoUtils } from "../utils/crypto";
-import { logger } from "../utils/logger";
+import { getDataSource } from "../config/db";
 
 export class UserService {
-  private userRepository = AppDataSource.getRepository(User);
+  private dataSource!: DataSource;
+  private userRepository!: Repository<User>;
+
+  constructor() {
+    this.LoadAsync();
+  }
+
+  private LoadAsync = async () => {
+    this.dataSource = await getDataSource();
+    this.userRepository = await this.dataSource.getRepository(User);
+  };
 
   async getUserByEmail(email: string): Promise<User | null> {
     const user = await this.userRepository
