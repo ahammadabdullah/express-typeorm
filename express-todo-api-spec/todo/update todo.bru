@@ -1,0 +1,23 @@
+meta {
+  name: Update todo
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{baseUrl}}/todos/e4f403a7-b590-46e7-b480-ceb156b96dd3
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "title": "Updated title 2",
+    "status": "completed"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,34 @@
+meta {
+  name: login
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/auth/login
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "email": "awesome5@gmail.com",
+    "password": "12345678"
+  }
+}
+
+script:post-response {
+   let token = res.getBody().data.token;
+   bru.setEnvVar("token", token);
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  # this is big title
+  ## this is second title
+  This is login api. It takes email and password. And returns a Object containing Token and user. 
+}
