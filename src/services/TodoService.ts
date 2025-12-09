@@ -3,7 +3,7 @@ import { Todo, TodoStatus } from "../entities/Todo";
 
 export class TodoService {
   private todoRepository = AppDataSource.getRepository(Todo);
-
+  private dataSource = AppDataSource;
   async createTodo(
     userId: string,
     title: string,
@@ -17,6 +17,26 @@ export class TodoService {
     });
 
     return this.todoRepository.save(todo);
+  }
+  async createTodoWithTransaction(
+    userId: string,
+    title: string,
+    desc?: string
+  ): Promise<Todo> {
+    return await this.dataSource.transaction(async (manager) => {
+      const todoRepo = manager.getRepository(Todo);
+
+      const todo = todoRepo.create({
+        title,
+        desc,
+        userId,
+        status: TodoStatus.PENDING,
+      });
+
+      const savedTodo = await todoRepo.save(todo);
+
+      return savedTodo;
+    });
   }
 
   async getTodosByUser(userId: string): Promise<Todo[]> {
