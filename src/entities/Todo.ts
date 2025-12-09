@@ -29,6 +29,7 @@ export class Todo {
   @Column({
     type: "enum",
     enum: TodoStatus,
+    insert: false,
     default: TodoStatus.PENDING,
   })
   status!: TodoStatus;
@@ -37,7 +38,7 @@ export class Todo {
   @JoinColumn({ name: "userId" })
   user!: User;
 
-  @Column()
+  @Column({ select: false })
   userId!: string;
 
   @CreateDateColumn()
