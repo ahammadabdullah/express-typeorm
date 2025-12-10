@@ -1,6 +1,7 @@
 import { DataSource, Repository } from "typeorm";
 import { getDataSource } from "../config/db";
 import { Todo, TodoStatus } from "../entities/Todo";
+import redis from "../lib/redis";
 
 export class TodoService {
   private dataSource!: DataSource;
@@ -26,6 +27,7 @@ export class TodoService {
       userId,
       status: TodoStatus.PENDING,
     });
+    await redis.del(`todos:user:${userId}`);
 
     return this.todoRepository.save(todo);
   }
@@ -51,13 +53,21 @@ export class TodoService {
   }
 
   async getTodosByUser(userId: string): Promise<Todo[]> {
+    const cached = await redis.get(`todos:user:${userId}`);
+    if (cached) {
+      console.log("returning from redis");
+      return JSON.parse(cached) as Todo[];
+    }
+    console.log("returning from pg");
     const todos = await this.todoRepository
       .createQueryBuilder("todo")
       .where("todo.userId = :userId", { userId })
       .leftJoinAndSelect("todo.user", "users")
       .orderBy("todo.createdAt", "DESC")
       .getMany();
-
+    await redis.set(`todos:user:${userId}`, JSON.stringify(todos), {
+      EX: 2,
+    });
     return todos;
   }
 
